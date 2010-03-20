@@ -35,6 +35,16 @@ Abstract Class Archive
 
 		return new $class;
 	}
+	
+	/**
+	 * Adds file by content to the archive 
+	 *  
+	 * @param string filename
+	 * @param string file content
+	 */
+	public function add_content( $name, $content ) {
+		$this->paths[] = array( '', $name, $content );
+	}
 
 	/**
 	 * Adds files or directories, recursively, to an archive.
@@ -85,28 +95,30 @@ Abstract Class Archive
 	}
 
 	/**
-	 * Creates an archive and saves it into a file.
+	 * Creates an archive and saves it into a file 
+	 * or returns it as a stream.
 	 *
 	 * @throws  Kohana_Exception
-	 * @param   string   archive filename
-	 * @return  boolean
+	 * @param   string   archive filename; if FASLE the zip file content will be returned 
+	 * @return  boolean or zip file content
 	 */
-	public function save($filename)
-	{
-		// Get the directory name
-		$directory = pathinfo($filename, PATHINFO_DIRNAME);
-
-		if ( ! is_writable($directory))
-			throw new Kohana_Exception('archive.directory_unwritable', $directory);
-
-		if (is_file($filename))
-		{
-			// Unable to write to the file
-			if ( ! is_writable($filename))
-				throw new Kohana_Exception('archive.filename_conflict', $filename);
-
-			// Remove the file
-			unlink($filename);
+	public function save($filename=FALSE) {
+		if ( $filename ) {
+			// Get the directory name
+			$directory = pathinfo($filename, PATHINFO_DIRNAME);
+	
+			if ( ! is_writable($directory))
+				throw new Kohana_Exception('archive.directory_unwritable', $directory);
+	
+			if (is_file($filename))
+			{
+				// Unable to write to the file
+				if ( ! is_writable($filename))
+					throw new Kohana_Exception('archive.filename_conflict', $filename);
+	
+				// Remove the file
+				unlink($filename);
+			}
 		}
 
 		return $this->create($this->paths, $filename);
